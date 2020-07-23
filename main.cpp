@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 
+
 using namespace std;
 
 typedef struct sElement {
@@ -21,12 +22,15 @@ typedef struct sList {
 
 int main() {
 
-    string line;
+    string line[10];
     ifstream input ("database/nomes.txt");
-    
+    int i = 0;
+
     if (input.is_open()) {
-        while (getline (input, line)) {
-            cout << line << endl;
+        while (getline (input, line[i]) && i < 10) {
+            char asc = line[i].at(0);
+            cout << "[" << i << "] " << line[i] << " First char: " << line[i].at(0) << " ASC:: " << (int)asc << endl;
+            i++;
         }
         input.close();
     } else {
@@ -35,4 +39,3 @@ int main() {
 
     return 0;
 }
-
