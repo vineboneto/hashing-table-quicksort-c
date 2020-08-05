@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#define M_KEYS 11 // numero de keys primo e impar
+#define M_KEYS 97 // Number of hash table keys, prime and odd
 
 typedef struct sElement {
     char* name;
@@ -28,8 +27,9 @@ List* createList();
 Element* createElement();
 
 int toAsc(char);
-int hashCode(int, char*);
+int hashCode(char*);
 int insertElement(List*, Element*);
+int length(char*);
 char* removeElement(List*, Element*);
 
 void hashing(char*, TableHash []);
@@ -53,7 +53,7 @@ int main() {
     hashing(input_file, tableHash);
 
     // Exibindo elementos da Tabela Hash
-    displayHashing(tableHash);
+    // displayHashing(tableHash);
     
     //limpando tableHash
     clearHashing(tableHash);
@@ -116,10 +116,7 @@ void hashing(char* input_file, TableHash* tableHash) {
 
     char* row = malloc(bytes);
     while(getline(&row, &bytes, in) > 0) {
-        char firstLetter = row[0];
-        int asc = toAsc(firstLetter);
-        int key = hashCode(asc, row);
-
+        int key = hashCode(row);
         // Gerando novo Elemento
         Element* e = createElement();
         strcpy(e->name, row);
@@ -189,9 +186,23 @@ char* removeElement(List* list, Element* e) {
 
 int toAsc(char letter) { return (int)letter; }
 
-int hashCode(int value , char* row) { 
+int hashCode(char* row) { 
+    int len = length(row);
+    int h = 0;
+    int i;
+    for(i = 0; i < len; i++) {
+        int asc = toAsc(row[i]);
+        h = (h * 31 + asc) % M_KEYS; 
+    }
+    return h;
+}
 
-    return value % M_KEYS; 
+int length(char* row) {
+    int i = 0;
+    while(row[i] != '\0') {
+        i++;
+    }
+    return i - 1;
 }
 
 void displayHashing(TableHash* t) {
