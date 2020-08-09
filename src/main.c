@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define M_KEYS 97 // Number of hash table keys, prime and odd
+#define M_KEYS 11 // Number of hash table keys, prime and odd
 
 typedef struct sElement {
     char* name;
@@ -33,13 +33,14 @@ int length(char*);
 char* removeElement(List*, Element*);
 
 void hashing(char*, TableHash []);
+void displayHashingById(TableHash*, int);
 void displayHashing(TableHash*);
 void displayList(List*);
 void clearHashing(TableHash*);
 void clearList(List*);
 
 int main() {
-    char* input_file = "../database/nomes.txt";
+    char* input_file = "../database/nomes-dev.txt";
     
     // Gerando chaves e criando tabela hash
     TableHash* tableHash = createTableHash();
@@ -53,8 +54,11 @@ int main() {
     hashing(input_file, tableHash);
 
     // Exibindo elementos da Tabela Hash
-    // displayHashing(tableHash);
+    displayHashing(tableHash);
     
+    // imprimindo lista por id
+    displayHashingById(tableHash, 0);
+
     //limpando tableHash
     clearHashing(tableHash);
 
@@ -205,6 +209,20 @@ int length(char* row) {
     return i - 1;
 }
 
+void displayHashingById(TableHash* tableHash, int id) {
+    Element* e = tableHash[id].list->head;
+
+    if (tableHash[id].list->size > 0) {
+        printf("\nLista[%d]\n", id);
+        while(e != NULL) {
+            if(e) printf("Name: %s", e->name);
+            e = e->next;
+        }
+    } else {
+        printf("Lista Vazia!");
+    }
+}
+
 void displayHashing(TableHash* t) {
     int i;
     for(i = 0; i < M_KEYS; i++) {
@@ -219,8 +237,7 @@ void displayList(List* l) {
     
     if(l->size > 0) {
         while(e != NULL) {
-            if(e) 
-                printf("Name: %s", e->name);
+            if(e) printf("Name: %s", e->name);
             e = e->next;
         }
     } else {
