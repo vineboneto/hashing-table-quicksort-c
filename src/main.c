@@ -39,13 +39,19 @@ void displayList(List*);
 void clearHashing(TableHash*);
 void clearList(List*);
 
+//Ordenação
+void sortedTableHash(TableHash*);
+void quickSort(Element*, Element*);
+void swap(int*, int*);
+int partition(Element*, Element*);
+
 int main() {
     char* input_file = "../database/nomes-dev.txt";
     
     // Gerando chaves e criando tabela hash
     TableHash* tableHash = createTableHash();
-    int i;
-    for(i = 0; i < M_KEYS; i++) {
+    
+    for(int i = 0; i < M_KEYS; i++) {
         tableHash[i].list = createList();
         tableHash[i].key = i;
     }
@@ -53,17 +59,19 @@ int main() {
     // função de espalhamento
     hashing(input_file, tableHash);
 
+    // imprimindo lista por id
+    // displayHashingById(tableHash, 0);
+
+    // Ordenanando a Tabela Hash
+    sortedTableHash(tableHash);
+
     // Exibindo elementos da Tabela Hash
     displayHashing(tableHash);
-    
-    // imprimindo lista por id
-    displayHashingById(tableHash, 0);
 
     //limpando tableHash
     clearHashing(tableHash);
 
-
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 FILE* openFile(char* path, char* mode) {
@@ -126,8 +134,9 @@ void hashing(char* input_file, TableHash* tableHash) {
         strcpy(e->name, row);
 
         // Inserindo elemento na respectiva key
-        insertElement(tableHash[key].list, e) == 0 ? printf("Inserido com sucesso\n") 
-        : printf("Erro ao inserir\n");
+        insertElement(tableHash[key].list, e) == 0 
+        ?  printf("Inserido com sucesso\n") 
+        :  printf("Erro ao inserir\n");
 
     }
 
@@ -192,13 +201,12 @@ int toAsc(char letter) { return (int)letter; }
 
 int hashCode(char* row) { 
     int len = length(row);
-    int h = 0;
-    int i;
-    for(i = 0; i < len; i++) {
+    int hash = 0;
+    for (int i = 0; i < len; i++) {
         int asc = toAsc(row[i]);
-        h = (h * 31 + asc) % M_KEYS; 
+        hash = (hash * 31 + asc) % M_KEYS; 
     }
-    return h;
+    return hash;
 }
 
 int length(char* row) {
@@ -224,8 +232,7 @@ void displayHashingById(TableHash* tableHash, int id) {
 }
 
 void displayHashing(TableHash* t) {
-    int i;
-    for(i = 0; i < M_KEYS; i++) {
+    for(int i = 0; i < M_KEYS; i++) {
         // Exibindo elementos das Listas
         printf("\nList->Key::%d\n", t[i].key);
         displayList(t[i].list);
@@ -246,10 +253,9 @@ void displayList(List* l) {
 }
 
 void clearHashing(TableHash* t) {
-    int i;
-    for(i = 0; i < M_KEYS; i++) {
-        printf("\nRemovendo lista[%d]\n", i);
-        printf("Size: %d\n", t[i].list->size);
+    for(int i = 0; i < M_KEYS; i++) {
+        // printf("\nRemovendo lista[%d]\n", i);
+        // printf("Size: %d\n", t[i].list->size);
         clearList(t[i].list);
         free(t[i].list);
         t[i].list = NULL;
@@ -272,4 +278,52 @@ void clearList(List* l) {
         free(del);
         del = NULL;
     }
+}
+
+void sortedTableHash(TableHash* tableHash) {
+    List* list;
+    for (int i = 0; i < M_KEYS; i++) {
+        list = tableHash[i].list;
+        quickSort(list->head, list->tail);
+    }
+}
+
+void quickSort(Element* low, Element* high) { 
+	if (high != NULL && low != high && low != high->next) {       
+        // Calculando o pi
+		Element* pi = partition(low, high); 
+        
+		quickSort(low, pi->prev); 
+		quickSort(pi->next, high); 
+	} 
+} 
+
+int partition (Element* low, Element* high) { 
+    //Pegando primeira letra do ultimo elemnto
+    char letter = high->name[0];
+	// Elemento pivo
+    int pivot = toAsc(letter);
+    // similar ao low - 1
+	Element* i = low->prev; 
+    
+	for (Element* j = low; j != high;j = j->next) { 
+        letter = j->name[0];
+        int jValue = toAsc(letter);
+        
+		if (jValue <= pivot) {
+            // Similar ao i++ do Quick Sort simples
+            i = (i == NULL) ? low : i->next;
+            swap(&(i->name), &(j->name));
+		} 
+	}
+
+    i = (i == NULL) ? low : i->next;
+	swap(&(i->name), &(high->name)); 
+	return i; 
+}
+
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
 }
