@@ -34,9 +34,6 @@ int insertElement(List*, Element*);
 int length(char*);
 char* removeElement(List*, Element*);
 
-void newInsertTableHash(TableHash*);
-void removeElementTableHash(TableHash*);
-
 // Hashing
 void hashing(char*, TableHash []);
 void displayHashingById(TableHash*, int);
@@ -53,6 +50,8 @@ Element* partition(Element*, Element*);
 
 // Busca
 void searchElement(TableHash* tableHash);
+void newInsertTableHash(TableHash*);
+void removeElementTableHash(TableHash*);
 
 int main() {
     char* input_file = "../database/nomes.txt";
@@ -68,8 +67,7 @@ int main() {
     // função de espalhamento
     hashing(input_file, tableHash);
 
-    // Exibindo todos elementos da Tabela Hash
-    // displayHashing(tableHash);
+
 
     // Realizando uma nova inserção na table Hash
     // newInsertTableHash(tableHash);
@@ -81,10 +79,13 @@ int main() {
     // removeElementTableHash(tableHash);
     
     // Realizando uma Busca na Table Hash
-    // searchElement(tableHash);
+    searchElement(tableHash);
 
     // imprimindo uma lista da table hash pelo seu id
-    displayHashingById(tableHash, 0);
+    // displayHashingById(tableHash, 77);
+
+    // Exibindo todos elementos da Tabela Hash
+    // displayHashing(tableHash);
 
     //limpando tableHash
     clearHashing(tableHash);
@@ -151,7 +152,13 @@ void hashing(char* input_file, TableHash* tableHash) {
 
     char* row = malloc(bytes);
     while (getline(&row, &bytes, in) > 0) {
+        
+        // Removendo quebra de linha
+        int len = strlen(row) - 1;
+        row[len] = '\0';
+        
         int key = hashCode(row);
+
         // Gerando novo Elemento
         Element* e = createElement();
         strcpy(e->name, row);
@@ -241,7 +248,7 @@ void displayHashingById(TableHash* tableHash, int id) {
     if (tableHash[id].list->size > 0) {
         printf ("\nLista[%d]\n", id);
         while(e != NULL) {
-            if(e) printf("Name: %s", e->name);
+            if(e) printf("Name: %s\n", e->name);
             e = e->next;
         }
     } else {
@@ -262,7 +269,7 @@ void displayList(List* l) {
     
     if (l->size > 0) {
         while(e != NULL) {
-            if(e) printf("Name: %s", e->name);
+            if(e) printf("Name: %s\n", e->name);
             e = e->next;
         }
     } else {
@@ -337,7 +344,7 @@ Element* partition (Element* low, Element* high) {
         } while (jASC == pivo);
     }
 
-    // faz um swap final no proxímo elemento do ultimo elemento trocado
+    // Faz um swap final no proxímo elemento do ultimo elemento trocado
     i = (i == NULL) ? low : i->next;
 	swap(&(i->name), &(high->name)); 
 	return i; 
@@ -355,18 +362,17 @@ void searchElement(TableHash* tableHash) {
 
     printf("Digite o nome que deseja encontrar (TUDO MAIUSCULO): ");
     scanf(" %[^\n]", aux);
-    int count = 0;
-    // Concatenando string lida com a quebra de linha
-    strcat(aux, "\n");
 
+    int count = 0;
+    // Encontra chave que o elemento está localizado
     int key = hashCode(aux);
-    printf("Key: %d\n", key);
     Element* e = tableHash[key].list->head;
-    
+
     while (e != NULL) {
         if (e) {
             if (strcmp(e->name, aux) == 0) {
-                printf("Nome Encontrado: %s", e->name);
+                printf("Chave: %d\n", key);
+                printf("Nome Encontrado: %s\n", e->name);
                 count++;
             } 
         }
@@ -380,11 +386,12 @@ void searchElement(TableHash* tableHash) {
 void newInsertTableHash(TableHash* tableHash) {
     Element* e = createElement();
     
-    printf("Digite o novo nome a ser inserido: ");
+    printf("Digite o novo nome a ser inserido (TUDO MAIUSCULO): ");
     scanf(" %[^\n]", e->name);
-    strcat(e->name, "\n");
 
+    // Insere novo elemento
     int key = hashCode(e->name);
+    printf("Chave: %d\n", key);
     insertElement(tableHash[key].list, e) == 0
     ? printf("Insercao realizada com sucesso\n")
     : printf("Ocorreu algum erro ao inserir\n");
@@ -394,9 +401,8 @@ void removeElementTableHash(TableHash* tableHash) {
     size_t bytes = 100;
     char* aux = malloc(bytes);
 
-    printf("Digite o nome que deseja remover: ");
+    printf("Digite o nome que deseja remover (TUDO MAIUSCULO): ");
     scanf(" %[^\n]", aux);
-    strcat(aux, "\n");
 
     int key = hashCode(aux);
     int count = 0;
@@ -406,10 +412,9 @@ void removeElementTableHash(TableHash* tableHash) {
     while(e != NULL) {
         if (e) {
             if (strcmp(e->name, aux) == 0 && count == 0) {
-                // Removendo caracter de quebra da linha
+                // Removendo elemento da lista
+                printf("Chave: %d", key);
                 char* del = removeElement(tableHash[key].list, e);
-                len = strlen(del) - 1;
-                del[len] = ' ';
                 del == " " ? printf("Erro ao Remover Elemento\n") :
                 printf("Elemento %s removido com sucesso\n", del);
                 count++;
@@ -418,6 +423,7 @@ void removeElementTableHash(TableHash* tableHash) {
         }
         e = e->next;
     }
+
     if (count == 0) {
         printf("Elemento Nao Encontrado!\n");
     }
