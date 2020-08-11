@@ -69,19 +69,19 @@ int main() {
     hashing(input_file, tableHash);
 
     // Exibindo todos elementos da Tabela Hash
-    displayHashing(tableHash);
+    // displayHashing(tableHash);
 
     // Realizando uma nova inserção na table Hash
-    newInsertTableHash(tableHash);
+    // newInsertTableHash(tableHash);
 
     // Ordenanando a Tabela Hash
     sortedTableHash(tableHash);
 
     // Deleta um determinado Elemento
-    removeElementTableHash(tableHash);
+    // removeElementTableHash(tableHash);
     
     // Realizando uma Busca na Table Hash
-    searchElement(tableHash);
+    // searchElement(tableHash);
 
     // imprimindo uma lista da table hash pelo seu id
     displayHashingById(tableHash, 0);
@@ -226,21 +226,13 @@ char* removeElement(List* list, Element* e) {
 int toAsc(char letter) { return (int)letter; }
 
 int hashCode(char* row) { 
-    int len = length(row);
+    int len = strlen(row);
     int hash = 0;
     for (int i = 0; i < len; i++) {
         int asc = toAsc(row[i]);
         hash = (hash * 31 + asc) % M_KEYS; 
     }
     return hash;
-}
-
-int length(char* row) {
-    int i = 0;
-    while(row[i] != '\0') {
-        i++;
-    }
-    return i - 1;
 }
 
 void displayHashingById(TableHash* tableHash, int id) {
@@ -280,8 +272,8 @@ void displayList(List* l) {
 
 void clearHashing(TableHash* t) {
     for (int i = 0; i < M_KEYS; i++) {
-        // printf("\nRemovendo lista[%d]\n", i);
-        // printf("Size: %d\n", t[i].list->size);
+        printf("\nRemovendo lista[%d]\n", i);
+        printf("Size: %d\n", t[i].list->size);
         clearList(t[i].list);
         free(t[i].list);
         t[i].list = NULL;
@@ -416,9 +408,8 @@ void removeElementTableHash(TableHash* tableHash) {
             if (strcmp(e->name, aux) == 0 && count == 0) {
                 // Removendo caracter de quebra da linha
                 char* del = removeElement(tableHash[key].list, e);
-                len = length(del);
+                len = strlen(del) - 1;
                 del[len] = ' ';
-                   
                 del == " " ? printf("Erro ao Remover Elemento\n") :
                 printf("Elemento %s removido com sucesso\n", del);
                 count++;
@@ -427,5 +418,17 @@ void removeElementTableHash(TableHash* tableHash) {
         }
         e = e->next;
     }
+    if (count == 0) {
+        printf("Elemento Nao Encontrado!\n");
+    }
+
     free(aux);
 }
+
+// int length(char* row) {
+//     int i = 0;
+//     while(row[i] != '\0') {
+//         i++;
+//     }
+//     return i - 1;
+// }
