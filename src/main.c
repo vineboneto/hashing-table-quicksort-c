@@ -343,6 +343,11 @@ int displayList(List* l) {
     int shutdown;
     printf("\n\nEncerrar: 1 || Continuar: 0 -> ");
     scanf("%d", &shutdown);
+    while (shutdown != 1 && shutdown != 0) {
+        printf("Invalido\n");
+        printf("Encerrar: 1 || Continuar: 0 -> ");
+        scanf("%d", &shutdown);
+    }
     system("cls");
 
     return shutdown;
@@ -442,11 +447,11 @@ void searchElement(TableHash* tableHash) {
     while (e != NULL) {
         if (e) {
             if (strcmp(e->name, aux) == 0) {
-                count++;
                 if (count == 0) {
                     printf("Chave: %d\n", key);
                     printf("Nome Encontrado: %s\n", e->name);
                 }
+                count++;
             } 
         }
         e = e->next;    
