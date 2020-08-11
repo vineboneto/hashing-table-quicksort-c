@@ -22,6 +22,7 @@ typedef struct sTableHash {
 
 // Prototype
 int menu();
+int selectId();
 
 // Criação
 FILE* openFile(char*, char*);
@@ -39,9 +40,10 @@ char* removeElement(List*, Element*);
 void hashing(char*, TableHash*);
 void displayHashingById(TableHash*, int);
 void displayHashing(TableHash*);
-void displayList(List*);
+int displayList(List*);
 void clearHashing(TableHash*);
 void clearList(List*);
+void printTotal(TableHash*);
 
 // Ordenação
 void sortedTableHash(TableHash*);
@@ -74,12 +76,12 @@ int main() {
 
 
     while (opc != 6) {
+        printTotal(tableHash);
         opc = menu();
         switch (opc) {
             // Inserir Novo Elemento
             case 1: {
                 newInsertTableHash(tableHash);
-                sortedTableHash(tableHash);
                 break;
             }
             // Remover Elemento Especifico
@@ -94,15 +96,7 @@ int main() {
             }
             // Buscar Lista por Id
             case 4: {
-                int id;
-                printf("ID MAX %d\n", M_KEYS - 1);
-                printf("Digite o Id: ");
-                scanf("%d", &id);
-                while(id > M_KEYS - 1) {
-                    printf("Id invalido\n");
-                    printf("Digite novo Id: ");
-                    scanf("%d", &id);
-                }
+                int id = selectId();
                 displayHashingById(tableHash, id);
                 break;
             }
@@ -118,6 +112,10 @@ int main() {
             }
             default: {
                 printf("Opcao invalida.\n");
+
+                printf("\n\n");
+                system("pause");
+                system("cls");
             }
 
         }   
@@ -135,12 +133,26 @@ int menu() {
     printf("2 -> Remover elemento da base de dados\n");
     printf("3 -> Realizar pesquisa na base de dados\n");
     printf("4 -> Imprimir lista por Id\n");
-    printf("5 -> Imprimir table hash inteira\n");
+    printf("5 -> Imprimir tabela hash inteira\n");
     printf("6 -> Encerrar programa\n");
     printf("  -> Escolha uma opcao: ");
     scanf("%d", &opc);
 
     return opc;
+}
+
+int selectId() {
+    int id;
+    printf("ID MAX %d\n", M_KEYS - 1);
+    printf("Digite o Id: ");
+    scanf("%d", &id);
+    while(id > M_KEYS - 1) {
+        printf("Id invalido\n");
+        printf("Digite novo Id: ");
+        scanf("%d", &id);
+    }
+
+    return id;
 }
 
 FILE* openFile(char* path, char* mode) {
@@ -194,9 +206,7 @@ Element* createElement() {
 void hashing(char* input_file, TableHash* tableHash) {
     FILE* in = openFile(input_file, "r");
     size_t bytes = 256;
-    int err = 0;
-    int success = 0;
-
+    int err;
     char* row = malloc(bytes);
     while (getline(&row, &bytes, in) > 0) {
         
@@ -211,13 +221,11 @@ void hashing(char* input_file, TableHash* tableHash) {
         strcpy(e->name, row);
 
         // Inserindo elemento na respectiva key
-        insertElement(tableHash[key].list, e) == 0 
-        ? success++
-        : err++;
+        err = insertElement(tableHash[key].list, e);
+        if (err == 1) printf("Ocorreu algum erro");
+        
 
     }
-    printf("\n\nInseridos com sucesso : %d\n\n", success);
-    printf("\n\nErros totais ao inserir: %d\n\n", err);
 
     free(row);
     fclose(in);
@@ -301,17 +309,25 @@ void displayHashingById(TableHash* tableHash, int id) {
     } else {
         printf("Lista Vazia!");
     }
+
+    printf("\n\n");
+    system("pause");
+    system("cls");
 }
 
 void displayHashing(TableHash* t) {
+    int print;
     for (int i = 0; i < M_KEYS; i++) {
         // Exibindo elementos das Listas
         printf("\nList->Key::%d\n", t[i].key);
-        displayList(t[i].list);
+        print = displayList(t[i].list);
+        if (print == 1) {
+            break;
+        }
     }
 }
 
-void displayList(List* l) {
+int displayList(List* l) {
     Element* e = l->head;
     
     if (l->size > 0) {
@@ -322,6 +338,14 @@ void displayList(List* l) {
     } else {
         printf("Lista Vazia!\n");
     }
+
+    // Encerar impressão de listas
+    int shutdown;
+    printf("\n\nEncerrar: 1 || Continuar: 0 -> ");
+    scanf("%d", &shutdown);
+    system("cls");
+
+    return shutdown;
 }
 
 void clearHashing(TableHash* t) {
@@ -418,9 +442,11 @@ void searchElement(TableHash* tableHash) {
     while (e != NULL) {
         if (e) {
             if (strcmp(e->name, aux) == 0) {
-                printf("Chave: %d\n", key);
-                printf("Nome Encontrado: %s\n", e->name);
                 count++;
+                if (count == 0) {
+                    printf("Chave: %d\n", key);
+                    printf("Nome Encontrado: %s\n", e->name);
+                }
             } 
         }
         e = e->next;    
@@ -428,6 +454,10 @@ void searchElement(TableHash* tableHash) {
 
     printf("Esse nome foi encontrado %d vezes.\n", count);
     free(aux);
+
+    printf("\n\n");
+    system("pause");
+    system("cls");
 }
 
 void newInsertTableHash(TableHash* tableHash) {
@@ -442,6 +472,14 @@ void newInsertTableHash(TableHash* tableHash) {
     insertElement(tableHash[key].list, e) == 0
     ? printf("Insercao realizada com sucesso\n")
     : printf("Ocorreu algum erro ao inserir\n");
+
+    // Ordenando lista na qual o elemento foi inserido
+    List* list = tableHash[key].list;
+    quickSort(list->head, list->tail);
+
+    printf("\n\n");
+    system("pause");
+    system("cls");
 }
 
 void removeElementTableHash(TableHash* tableHash) {
@@ -463,7 +501,7 @@ void removeElementTableHash(TableHash* tableHash) {
                 char* del = removeElement(tableHash[key].list, e);
                 
                 del == ' ' ? printf("Erro ao remover Elemento\n")
-                : printf("Elemento %s removido com sucesso\n"del);
+                : printf("Elemento %s removido com sucesso\n", del);
                 count++;
                 free(del);
             }
@@ -475,5 +513,17 @@ void removeElementTableHash(TableHash* tableHash) {
         printf("Elemento Nao Encontrado!\n");
     }
 
+    printf("\n\n");
+    system("pause");
+    system("cls");
     free(aux);
+}
+
+void printTotal(TableHash* t) {
+    int total = 0;
+    for (int i = 0; i < M_KEYS; i++) {
+        total += t[i].list->size;
+    }
+
+    printf("\n\nTotal de elementos na tabela hash: %d\n\n", total);
 }
