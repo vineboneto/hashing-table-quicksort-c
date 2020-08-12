@@ -74,7 +74,6 @@ int main() {
     // Ordenando a Tabela Hash
     sortedTableHash(tableHash);
 
-
     while (opc != 6) {
         printTotal(tableHash);
         opc = menu();
@@ -223,8 +222,6 @@ void hashing(char* input_file, TableHash* tableHash) {
         // Inserindo elemento na respectiva key
         err = insertElement(tableHash[key].list, e);
         if (err == 1) printf("Ocorreu algum erro");
-        
-
     }
 
     free(row);
